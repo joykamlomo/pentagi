@@ -354,6 +354,7 @@ These settings control how PentAGI interacts with Docker, which is used for term
 | DockerDefaultImage           | `DOCKER_DEFAULT_IMAGE`             | `debian:latest`        | Default Docker image for containers when specific images fail |
 | DockerDefaultImageForPentest | `DOCKER_DEFAULT_IMAGE_FOR_PENTEST` | `vxcontrol/kali-linux` | Default Docker image for penetration testing tasks |
 | TerminalToolTimeout          | `TERMINAL_TOOL_TIMEOUT`            | `1200`                 | Default execution timeout in seconds applied when an agent requests `timeout=0` or a negative value. Accepted range: `1`–`10800` (3 hours). Values `<= 0` or above `10800` are clamped to the 3-hour maximum. Negative values are treated identically to `0`. |
+| ScopeAllowedTargets          | `SCOPE_ALLOWED_TARGETS`            | *(empty)*              | Comma-separated engagement scope (IPs, CIDRs, hostnames, `*.example.com`). Agent terminal commands referencing any other destination are refused. Empty disables the guardrail. |
 
 ### Worker Docker Access (`DOCKER_INSIDE_*`)
 
@@ -424,6 +425,18 @@ The Docker settings are primarily used in `pkg/docker/client.go` which implement
   ```
 
   The value is clamped inside the terminal tool: values `<= 0` or above `10800` s (3 hours) are silently raised/capped to the 3-hour maximum — agents always receive a finite timeout. Negative values are accepted at the environment level and treated identically to `0` (both resolve to the 3-hour ceiling). Explicit `timeout` values provided by the tool call override this default when they are within the `1`–`10800` s range.
+
+- **ScopeAllowedTargets**: Declares the targets an engagement is authorized to touch. Before every agent shell command, destinations found in the command text (URLs, `user@host`, IPs/CIDRs, dotted hostnames) are compared with this list; anything outside it is refused, the attempt is written to the terminal log, and the agent is told why:
+  ```
+  SCOPE_ALLOWED_TARGETS=10.20.0.0/24,app.client.com,*.dev.client.com
+  ```
+
+  - `app.client.com` matches that host only; `*.dev.client.com` matches subdomains only (list both for apex plus subdomains).
+  - An IP/CIDR in a command must be fully contained in an allowed range (`10.20.0.0/16` is refused when only `10.20.0.0/24` is allowed).
+  - Loopback addresses and common package/tool sources (GitHub, PyPI, npm, Debian/Kali mirrors, etc.) are always allowed so agents can install tools.
+  - An invalid entry fails startup, so a typo cannot silently widen the scope.
+
+  **Limits — this is a guardrail, not a security boundary.** It reads command text only. It cannot see destinations built at runtime (`curl $(cat hosts.txt)`, encoded strings, scripts the agent writes and then runs), and it does not resolve DNS. For hard enforcement, restrict egress at the network layer for the worker container.
 
 - **DockerNetwork**: Controls the network isolation mode for containers. Supports two modes:
   

@@ -55,6 +55,11 @@ type Config struct {
 	DockerDefaultImageForPentest string `env:"DOCKER_DEFAULT_IMAGE_FOR_PENTEST" envDefault:"vxcontrol/kali-linux"`
 	TerminalToolTimeout          int    `env:"TERMINAL_TOOL_TIMEOUT" envDefault:"1200"`
 
+	// ScopeAllowedTargets lists the targets agents are authorized to touch:
+	// IPs, CIDRs, hostnames and "*.example.com" wildcards, comma-separated.
+	// Empty disables the scope guardrail. See pkg/scope for what it can and cannot enforce.
+	ScopeAllowedTargets string `env:"SCOPE_ALLOWED_TARGETS"`
+
 	// === API Server Configuration ===
 	ServerPort   int    `env:"SERVER_PORT" envDefault:"8080"`
 	ServerHost   string `env:"SERVER_HOST" envDefault:"0.0.0.0"`
@@ -304,6 +309,10 @@ func NewConfig() (*Config, error) {
 	}
 
 	if err := config.ValidateTenantID(); err != nil {
+		return nil, err
+	}
+
+	if err := config.ValidateScope(); err != nil {
 		return nil, err
 	}
 

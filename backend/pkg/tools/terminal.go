@@ -16,6 +16,7 @@ import (
 	"pentagi/pkg/docker"
 	obs "pentagi/pkg/observability"
 	"pentagi/pkg/observability/langfuse"
+	"pentagi/pkg/scope"
 
 	"github.com/moby/moby/client"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,7 @@ const (
 	// ANSI terminal color codes (aligned with PentAGI UI palette)
 	ansiColorInputCmd  = "\033[96m" // Bright Cyan - matches UI blue accents
 	ansiColorSystemMsg = "\033[92m" // Bright Green - universal success/info
+	ansiColorBlocked   = "\033[91m" // Bright Red - command refused by policy
 	ansiColorReset     = "\033[0m"  // Reset to default
 	ansiLineTerminator = "\r\n"     // CRLF for terminal compatibility
 )
@@ -51,6 +53,16 @@ type terminal struct {
 	dockerClient       docker.DockerClient
 	tlp                TermLogProvider
 	defaultExecTimeout time.Duration
+	scope              *scope.Policy
+}
+
+// TerminalOption customizes a terminal tool at construction time.
+type TerminalOption func(*terminal)
+
+// WithScope makes the terminal refuse commands that reference destinations
+// outside the policy. A nil policy leaves the terminal unrestricted.
+func WithScope(p *scope.Policy) TerminalOption {
+	return func(t *terminal) { t.scope = p }
 }
 
 func NewTerminalTool(
@@ -61,8 +73,9 @@ func NewTerminalTool(
 	dockerClient docker.DockerClient,
 	tlp TermLogProvider,
 	defaultExecTimeout time.Duration,
+	opts ...TerminalOption,
 ) Tool {
-	return &terminal{
+	t := &terminal{
 		flowID:             flowID,
 		taskID:             taskID,
 		subtaskID:          subtaskID,
@@ -73,6 +86,11 @@ func NewTerminalTool(
 		tlp:                tlp,
 		defaultExecTimeout: defaultExecTimeout,
 	}
+	for _, opt := range opts {
+		opt(t)
+	}
+
+	return t
 }
 
 func (t *terminal) configuredExecTimeout() time.Duration {
@@ -193,6 +211,10 @@ func (t *terminal) ExecCommand(
 	detach bool,
 	timeout time.Duration,
 ) (string, error) {
+	if err := t.enforceScope(ctx, cwd, command); err != nil {
+		return "", err
+	}
+
 	containerName := PrimaryTerminalName(t.tenantPrefix, t.flowID)
 
 	cmd := []string{
@@ -257,6 +279,42 @@ func (t *terminal) ExecCommand(
 	}
 
 	return t.getExecResult(ctx, createResp.ID, timeout)
+}
+
+// enforceScope refuses a command that references destinations outside the
+// authorized scope. The attempt is written to the terminal log so the
+// engagement record shows what was blocked, and the returned error tells the
+// agent how to proceed instead of retrying blindly.
+func (t *terminal) enforceScope(ctx context.Context, cwd, command string) error {
+	violations := t.scope.Check(command)
+	if len(violations) == 0 {
+		return nil
+	}
+
+	logrus.WithContext(ctx).WithFields(enrichLogrusFields(t.flowID, t.taskID, t.subtaskID, logrus.Fields{
+		"tool":       TerminalToolName,
+		"violations": violations,
+		"command":    truncateString(command, 500),
+	})).Warn("terminal command blocked: destination outside authorized scope")
+
+	if cwd == "" {
+		cwd = docker.WorkFolderPathInContainer
+	}
+	notice := fmt.Sprintf(
+		"%s $ %s%s%s%s%sBLOCKED: out-of-scope destination(s): %s%s%s",
+		cwd, ansiColorInputCmd, command, ansiColorReset, ansiLineTerminator,
+		ansiColorBlocked, strings.Join(violations, ", "), ansiColorReset, ansiLineTerminator,
+	)
+	if _, err := t.tlp.PutMsg(ctx, database.TermlogTypeStderr, notice, t.containerID, t.taskID, t.subtaskID); err != nil {
+		logrus.WithContext(ctx).WithError(err).Warn("failed to log blocked terminal command")
+	}
+
+	return fmt.Errorf(
+		"command not executed: it references destination(s) outside the authorized engagement scope: %s. "+
+			"Only operate on targets the client has authorized. Do not attempt to bypass this check; "+
+			"if one of these is a legitimate target, report that it needs to be added to the scope by the operator",
+		strings.Join(violations, ", "),
+	)
 }
 
 func (t *terminal) getExecResult(ctx context.Context, id string, timeout time.Duration) (string, error) {

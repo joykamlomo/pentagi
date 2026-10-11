@@ -22,6 +22,7 @@ import (
 	"pentagi/pkg/graphiti"
 	"pentagi/pkg/providers/embeddings"
 	"pentagi/pkg/schema"
+	"pentagi/pkg/scope"
 
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
@@ -186,6 +187,20 @@ type flowToolsExecutor struct {
 
 	definitions map[string]llms.FunctionDefinition
 	handlers    map[string]ExecutorHandler
+}
+
+// scopeOption returns the terminal option that enforces the configured
+// engagement scope. If the policy cannot be built it fails closed (deny all
+// external destinations) rather than silently dropping the restriction;
+// config validation normally rejects a bad SCOPE_ALLOWED_TARGETS at startup.
+func (fte *flowToolsExecutor) scopeOption() TerminalOption {
+	policy, err := fte.cfg.ScopePolicy()
+	if err != nil {
+		logrus.WithError(err).Error("invalid scope configuration, denying all external destinations")
+		policy = scope.DenyAll()
+	}
+
+	return WithScope(policy)
 }
 
 type ContextToolsExecutor interface {
@@ -851,6 +866,7 @@ func (fte *flowToolsExecutor) GetAssistantExecutor(cfg AssistantExecutorConfig) 
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	definitions := []llms.FunctionDefinition{
@@ -1101,6 +1117,7 @@ func (fte *flowToolsExecutor) GetInstallerExecutor(cfg InstallerExecutorConfig) 
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
@@ -1208,6 +1225,7 @@ func (fte *flowToolsExecutor) GetCoderExecutor(cfg CoderExecutorConfig) (Context
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
@@ -1333,6 +1351,7 @@ func (fte *flowToolsExecutor) GetPentesterExecutor(cfg PentesterExecutorConfig) 
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
@@ -1526,6 +1545,7 @@ func (fte *flowToolsExecutor) GetGeneratorExecutor(cfg GeneratorExecutorConfig) 
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
@@ -1595,6 +1615,7 @@ func (fte *flowToolsExecutor) GetRefinerExecutor(cfg RefinerExecutorConfig) (Con
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
@@ -1660,6 +1681,7 @@ func (fte *flowToolsExecutor) GetMemoristExecutor(cfg MemoristExecutorConfig) (C
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
@@ -1733,6 +1755,7 @@ func (fte *flowToolsExecutor) GetEnricherExecutor(cfg EnricherExecutorConfig) (C
 		fte.docker,
 		fte.tlp,
 		time.Duration(fte.cfg.TerminalToolTimeout)*time.Second,
+		fte.scopeOption(),
 	)
 
 	ce := &customExecutor{
