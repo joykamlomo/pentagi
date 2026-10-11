@@ -11,7 +11,6 @@ import (
 	"pentagi/cmd/installer/state"
 
 	"github.com/google/uuid"
-	"github.com/vxcontrol/cloud/sdk"
 	"github.com/vxcontrol/cloud/system"
 )
 
@@ -136,17 +135,6 @@ func DoHardening(s state.State, c checker.CheckResult) error {
 			return fmt.Errorf("failed to set INSTALLATION_ID: %w", err)
 		}
 		haveToCommit = true
-	}
-
-	if licenseKey, exists := s.GetVar("LICENSE_KEY"); exists && licenseKey.Value != "" {
-		if info, err := sdk.IntrospectLicenseKey(licenseKey.Value); err != nil {
-			return fmt.Errorf("failed to introspect license key: %w", err)
-		} else if !info.IsValid() {
-			if err := s.SetVar("LICENSE_KEY", ""); err != nil {
-				return fmt.Errorf("failed to set LICENSE_KEY: %w", err)
-			}
-			haveToCommit = true
-		}
 	}
 
 	// harden langfuse vars only if neither containers nor volumes exist

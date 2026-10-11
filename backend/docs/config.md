@@ -155,7 +155,6 @@ These settings control basic application behavior and are foundational for the s
 | TenantID         | `TENANT_ID`                 | *(empty)*                                                                    | Namespaces every externally-visible artifact this instance creates so several PentAGI instances can share one host and one set of backing services. Empty = single-instance behavior, unchanged. See [Multi-Instance Deployment](#multi-instance-deployment-tenant_id). |
 | DockerPortsBase  | `DOCKER_PORTS_BASE`         | `0` (means `28000`)                                                          | First host port for per-flow sandbox port publishing; each instance owns `[base, base+2000)` |
 | InstallationID   | `INSTALLATION_ID`           | *(none)*                                                                     | Unique installation identifier for PentAGI Cloud API communication       |
-| LicenseKey       | `LICENSE_KEY`               | *(none)*                                                                     | License key for PentAGI Cloud API authentication and feature activation  |
 
 ### Multi-Instance Deployment (`TENANT_ID`)
 
@@ -334,18 +333,6 @@ if fte.cfg.AskUser {
 // Used in cloud SDK initialization
 if cfg.InstallationID != "" {
     // Initialize cloud API client with installation ID
-}
-```
-
-- **LicenseKey**: Authentication key for PentAGI Cloud API and premium feature activation:
-  - Validates license and enables licensed features
-  - Required for enterprise features and support
-  - Used for authentication with PentAGI Cloud services
-
-```go
-// Used in cloud SDK initialization
-if cfg.LicenseKey != "" {
-    // Validate license and activate premium features
 }
 ```
 

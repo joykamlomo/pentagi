@@ -16,7 +16,6 @@ import (
 	"pentagi/pkg/config"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/vxcontrol/cloud/sdk"
 )
 
 // schemaNameRegex keeps DATABASE_EXTENSIONS_SCHEMA within PostgreSQL's
@@ -43,13 +42,6 @@ func NewServerSettingsFormModel(c controller.Controller, s styles.Styles, w wind
 func (m *ServerSettingsFormModel) BuildForm() tea.Cmd {
 	config := m.GetController().GetServerSettingsConfig()
 	fields := []FormField{}
-
-	fields = append(fields, m.createTextField("pentagi_license_key",
-		locale.ServerSettingsLicenseKey,
-		locale.ServerSettingsLicenseKeyDesc,
-		config.LicenseKey,
-		true,
-	))
 
 	fields = append(fields, m.createTextField("pentagi_tenant_id",
 		locale.ServerSettingsTenantID,
@@ -257,13 +249,6 @@ func (m *ServerSettingsFormModel) GetCurrentConfiguration() string {
 		return maskedValue
 	}
 
-	licenseStatus := locale.StatusNotConfigured
-	if licenseKey := cfg.LicenseKey.Value; licenseKey != "" {
-		licenseStatus = locale.StatusConfigured
-	}
-	licenseStatus = m.GetStyles().Muted.Render(licenseStatus)
-	sections = append(sections, fmt.Sprintf("• %s: %s", locale.ServerSettingsLicenseKeyHint, licenseStatus))
-
 	if tenantID := cfg.TenantID.Value; tenantID != "" {
 		tenantID = m.GetStyles().Info.Render(tenantID)
 		sections = append(sections, fmt.Sprintf("• %s: %s", locale.ServerSettingsTenantIDHint, tenantID))
@@ -426,8 +411,6 @@ func (m *ServerSettingsFormModel) GetHelpContent() string {
 	if fieldIndex >= 0 && fieldIndex < len(fields) {
 		field := fields[fieldIndex]
 		switch field.Key {
-		case "pentagi_license_key":
-			sections = append(sections, locale.ServerSettingsLicenseKeyHelp)
 		case "pentagi_tenant_id":
 			sections = append(sections, locale.ServerSettingsTenantIDHelp)
 		case "pentagi_pprof_addr":
@@ -474,7 +457,6 @@ func (m *ServerSettingsFormModel) HandleSave() error {
 
 	newCfg := &controller.ServerSettingsConfig{
 		TenantID:                 cfg.TenantID,
-		LicenseKey:               cfg.LicenseKey,
 		PprofAddr:                cfg.PprofAddr,
 		ListenIP:                 cfg.ListenIP,
 		ListenPort:               cfg.ListenPort,
@@ -496,15 +478,6 @@ func (m *ServerSettingsFormModel) HandleSave() error {
 		value := strings.TrimSpace(field.Input.Value())
 
 		switch field.Key {
-		case "pentagi_license_key":
-			if value != "" {
-				if info, err := sdk.IntrospectLicenseKey(value); err != nil {
-					return fmt.Errorf("invalid license key: %v", err)
-				} else if !info.IsValid() {
-					return fmt.Errorf("invalid license key")
-				}
-			}
-			newCfg.LicenseKey.Value = value
 		case "pentagi_tenant_id":
 			if err := (&config.Config{TenantID: value}).ValidateTenantID(); err != nil {
 				return err

@@ -13,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/vxcontrol/cloud/anonymizer/patterns"
-	"github.com/vxcontrol/cloud/sdk"
 )
 
 type Config struct {
@@ -28,7 +27,6 @@ type Config struct {
 
 	// === PentAGI Cloud Service Integration ===
 	InstallationID string `env:"INSTALLATION_ID"`
-	LicenseKey     string `env:"LICENSE_KEY"`
 
 	// === Container Runtime Configuration ===
 	DockerInside   bool   `env:"DOCKER_INSIDE" envDefault:"false"`
@@ -310,7 +308,6 @@ func NewConfig() (*Config, error) {
 	}
 
 	ensureInstallationID(&config)
-	ensureLicenseKey(&config)
 
 	return &config, nil
 }
@@ -331,19 +328,6 @@ func ensureInstallationID(config *Config) {
 	}
 
 	_ = os.WriteFile(installationIDPath, []byte(config.InstallationID), 0644)
-}
-
-func ensureLicenseKey(config *Config) {
-	if config.LicenseKey == "" {
-		return
-	}
-
-	info, err := sdk.IntrospectLicenseKey(config.LicenseKey)
-	if err != nil {
-		config.LicenseKey = ""
-	} else if !info.IsValid() {
-		config.LicenseKey = ""
-	}
 }
 
 // WorkerPortsBase returns the base port for the worker container
@@ -439,7 +423,6 @@ func (c *Config) GetSecretPatterns() []patterns.Pattern {
 		name  string
 	}{
 		{c.DatabaseURL, "Database URL"},
-		{c.LicenseKey, "License Key"},
 		{c.CookieSigningSalt, "Cookie Salt"},
 		{c.OpenAIKey, "OpenAI Key"},
 		{c.AnthropicAPIKey, "Anthropic Key"},

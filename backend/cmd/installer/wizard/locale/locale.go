@@ -1239,8 +1239,6 @@ const (
 • Data directory - persistent storage for agent artifacts and flow workspaces`
 
 	// Field labels and descriptions
-	ServerSettingsLicenseKey     = "License Key"
-	ServerSettingsLicenseKeyDesc = brand.Name + " License Key in format of XXXX-XXXX-XXXX-XXXX"
 
 	ToolsDockerInsideHost     = "Worker Docker Daemon Host"
 	ToolsDockerInsideHostDesc = "Daemon endpoint given to worker containers (e.g., tcp://dind:2376); empty keeps socket mounting"
@@ -1333,7 +1331,6 @@ Examples:
 	ServerSettingsDatabaseSearchPathViaOptionsDesc = "Send the tenant search_path inside the options startup parameter (needed by some poolers)"
 
 	// Hints for fields overview
-	ServerSettingsLicenseKeyHint                   = "License Key"
 	ServerSettingsTenantIDHint                     = "Tenant ID"
 	ServerSettingsPprofAddrHint                    = "pprof Address"
 	ServerSettingsHostHint                         = "Listen IP"
@@ -1358,8 +1355,6 @@ Examples:
 Public URL must reflect how users reach the server. If using a subpath (e.g., /pentagi/), include it here. CORS controls browser access from specified origins. Proxy affects outbound traffic to LLM/search providers and other external services used by Tools.
 
 SSL directory allows providing custom certificates. When set, server will use server.crt and server.key from that directory. Data directory stores artifacts and working files for flows.`
-
-	ServerSettingsLicenseKeyHelp = `` + brand.Name + ` License Key in format of XXXX-XXXX-XXXX-XXXX. It's used to communicate with ` + brand.Name + ` Cloud API.`
 
 	ServerSettingsTenantIDHelp = `Optional identifier that namespaces PostgreSQL schema, data directory, Docker objects, Graphiti group ids, auth cookies and telemetry when several ` + brand.Name + ` instances share one host and the same backing services.
 
@@ -2458,7 +2453,6 @@ const (
 	EnvDesc_DOCKER_INSIDE_CERT_PATH          = "Worker Docker Certificate Path"
 
 	EnvDesc_TENANT_ID                         = brand.Name + " Tenant ID"
-	EnvDesc_LICENSE_KEY                       = brand.Name + " License Key"
 	EnvDesc_PPROF_ADDR                        = brand.Name + " pprof Listen Address"
 	EnvDesc_PENTAGI_LISTEN_IP                 = brand.Name + " Server Host"
 	EnvDesc_PENTAGI_LISTEN_PORT               = brand.Name + " Server Port"

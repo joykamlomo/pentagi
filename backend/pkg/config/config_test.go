@@ -28,13 +28,12 @@ func TestGetSecretPatterns_WithSecrets(t *testing.T) {
 		AnthropicAPIKey: "sk-ant-api03-1234567890",
 		GeminiAPIKey:    "AIzaSyC1234567890abcdefghijklmnopqrst",
 		DatabaseURL:     "postgres://user:password@localhost:5432/db",
-		LicenseKey:      "ABCD-EFGH-IJKL-MNOP",
 	}
 
 	patterns := cfg.GetSecretPatterns()
 
-	if len(patterns) != 5 {
-		t.Errorf("expected 5 patterns, got %d", len(patterns))
+	if len(patterns) != 4 {
+		t.Errorf("expected 4 patterns, got %d", len(patterns))
 	}
 
 	// check that all patterns have names and regexes
@@ -67,13 +66,12 @@ func TestGetSecretPatterns_SkipsEmptyStrings(t *testing.T) {
 		AnthropicAPIKey: "",
 		GeminiAPIKey:    "   ",
 		DatabaseURL:     "\t\n",
-		LicenseKey:      "ABCD-EFGH",
 	}
 
 	patterns := cfg.GetSecretPatterns()
 
-	if len(patterns) != 2 {
-		t.Errorf("expected 2 patterns (only non-empty after trim), got %d", len(patterns))
+	if len(patterns) != 1 {
+		t.Errorf("expected 1 patterns (only non-empty after trim), got %d", len(patterns))
 	}
 }
 
@@ -209,7 +207,6 @@ func TestGetSecretPatterns_PatternCompilation(t *testing.T) {
 func TestGetSecretPatterns_AllFields(t *testing.T) {
 	cfg := &Config{
 		DatabaseURL:             "postgres://user:pass@localhost:5432/db",
-		LicenseKey:              "ABCD-EFGH-IJKL-MNOP",
 		CookieSigningSalt:       "random-salt-string-12345",
 		OpenAIKey:               "sk-proj-123",
 		AnthropicAPIKey:         "sk-ant-123",
@@ -242,7 +239,7 @@ func TestGetSecretPatterns_AllFields(t *testing.T) {
 
 	patterns := cfg.GetSecretPatterns()
 
-	expectedCount := 30
+	expectedCount := 29
 	if len(patterns) != expectedCount {
 		t.Errorf("expected %d patterns, got %d", expectedCount, len(patterns))
 	}
@@ -271,7 +268,7 @@ func clearConfigEnv(t *testing.T) {
 	t.Helper()
 
 	envVars := []string{
-		"DATABASE_URL", "DEBUG", "DATA_DIR", "ASK_USER", "TENANT_ID", "INSTALLATION_ID", "LICENSE_KEY",
+		"DATABASE_URL", "DEBUG", "DATA_DIR", "ASK_USER", "TENANT_ID", "INSTALLATION_ID",
 		"DOCKER_INSIDE", "DOCKER_NET_ADMIN", "DOCKER_SOCKET", "DOCKER_NETWORK",
 		"DOCKER_INSIDE_HOST", "DOCKER_INSIDE_TLS_VERIFY", "DOCKER_INSIDE_CERT_PATH",
 		"DOCKER_PUBLIC_IP", "DOCKER_WORK_DIR", "DOCKER_DEFAULT_IMAGE", "DOCKER_DEFAULT_IMAGE_FOR_PENTEST", "TERMINAL_TOOL_TIMEOUT",

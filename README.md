@@ -4102,10 +4102,8 @@ Copyright (c) 2025 PentAGI Development Team
 
 All third-party dependencies use MIT-compatible licenses. See [licenses/](licenses/) directory for detailed license reports.
 
-### VXControl Cloud Services
+### VXControl Cloud SDK
 
-⚠️ **Note:** While the VXControl Cloud SDK code is MIT licensed, accessing **VXControl Cloud Services** (threat intelligence, AI support, premium features) requires a separate License Key and compliance with [Terms of Service](https://github.com/vxcontrol/cloud#license-and-terms).
-
-The SDK code itself is free to use - service access requires registration.
+This project depends on the MIT-licensed [VXControl Cloud SDK](https://github.com/vxcontrol/cloud) for its local data-anonymization package. The optional `LICENSE_KEY` setting for VXControl Cloud Services has been removed from this distribution; no cloud service access or registration is required.
 
 For questions contact: **info@pentagi.com** or **info@vxcontrol.com**
