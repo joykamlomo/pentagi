@@ -4,6 +4,7 @@ Copyright 2025 PentAGI Development Team
 
 Licensed under MIT License. See LICENSE and EULA for terms.
 
-NOTICE: This software integrates VXControl Cloud SDK for enhanced intelligence services.
-VXControl Cloud SDK is licensed under AGPL-3.0 with a special exception for this official PentAGI project.
-For more details, see the License section in README.md and VXControl Cloud SDK license terms.
+NOTICE: This software integrates the VXControl Cloud SDK (github.com/vxcontrol/cloud),
+which is licensed under the MIT License. Its data-anonymization package is used locally;
+accessing VXControl Cloud *services* is optional and subject to their separate terms.
+See the License section in README.md.
