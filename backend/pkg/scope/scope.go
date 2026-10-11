@@ -273,3 +273,37 @@ func isInfra(h string) bool {
 	}
 	return false
 }
+
+// Prefixes returns the authorized IP ranges (single IPs appear as /32 or /128).
+func (p *Policy) Prefixes() []netip.Prefix {
+	if p == nil {
+		return nil
+	}
+	return append([]netip.Prefix(nil), p.prefixes...)
+}
+
+// Hostnames returns the exact authorized hostnames, sorted.
+func (p *Policy) Hostnames() []string {
+	if p == nil {
+		return nil
+	}
+	out := make([]string, 0, len(p.exact))
+	for h := range p.exact {
+		out = append(out, h)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// Wildcards returns the authorized "*.example.com" patterns, sorted.
+func (p *Policy) Wildcards() []string {
+	if p == nil {
+		return nil
+	}
+	out := make([]string, 0, len(p.suffixes))
+	for _, s := range p.suffixes {
+		out = append(out, "*"+s)
+	}
+	sort.Strings(out)
+	return out
+}

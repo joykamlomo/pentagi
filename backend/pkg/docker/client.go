@@ -19,6 +19,7 @@ import (
 
 	"pentagi/pkg/config"
 	"pentagi/pkg/database"
+	"pentagi/pkg/scope"
 
 	cerrdefs "github.com/containerd/errdefs"
 	"github.com/moby/moby/api/pkg/stdcopy"
@@ -86,6 +87,9 @@ type dockerClient struct {
 	labels         map[string]string
 	insideEnv      []string
 	insideCertPath string
+	// egress, when set, is loaded as firewall rules into every container
+	// before it is handed to the agents.
+	egress *scope.Policy
 }
 
 type DockerClient interface {
@@ -179,6 +183,21 @@ func NewDockerClient(ctx context.Context, db database.Querier, cfg *config.Confi
 		return nil, fmt.Errorf("failed to ensure docker network %s: %w", netName, err)
 	}
 
+	var egress *scope.Policy
+	if cfg.ScopeEgressEnforce {
+		// ValidateScope already rejected unusable combinations at config load;
+		// repeating the check here keeps this safe for callers that build a
+		// Config by hand.
+		if err := cfg.ValidateScope(); err != nil {
+			return nil, err
+		}
+		if egress, err = cfg.ScopePolicy(); err != nil {
+			return nil, err
+		}
+		logrus.WithField("targets", len(egress.Prefixes())+len(egress.Hostnames())).
+			Info("SCOPE_EGRESS_ENFORCE=true: worker containers are confined to the authorized targets")
+	}
+
 	logger := logrus.StandardLogger()
 	logger.WithFields(logrus.Fields{
 		"docker_name":        info.Name,
@@ -208,6 +227,7 @@ func NewDockerClient(ctx context.Context, db database.Querier, cfg *config.Confi
 		labels:         cfg.TenantLabels(),
 		insideEnv:      cfg.WorkerDockerEnv(),
 		insideCertPath: cfg.WorkerDockerCertPath(),
+		egress:         egress,
 	}, nil
 }
 
@@ -502,6 +522,18 @@ func (dc *dockerClient) RunContainer(
 		logger.WithError(err).Error("container did not stay running after start")
 		dc.discardContainer(ctx, containerID, logger)
 		return database.Container{}, err
+	}
+
+	// Lock the network down before anything can run in the container. If the
+	// rules cannot be loaded the sandbox is unrestricted, so it is discarded
+	// instead of being handed to the agents.
+	if dc.egress != nil {
+		if err := ApplyEgressPolicy(ctx, dc, containerID, dc.egress, logger); err != nil {
+			defer updateContainerInfo(database.ContainerStatusFailed, containerID)
+			logger.WithError(err).Error("failed to apply egress policy, discarding container")
+			dc.discardContainer(ctx, containerID, logger)
+			return database.Container{}, fmt.Errorf("failed to apply egress policy to container '%s': %w", containerName, err)
+		}
 	}
 
 	logger.Info("container started")

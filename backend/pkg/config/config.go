@@ -60,6 +60,11 @@ type Config struct {
 	// Empty disables the scope guardrail. See pkg/scope for what it can and cannot enforce.
 	ScopeAllowedTargets string `env:"SCOPE_ALLOWED_TARGETS"`
 
+	// ScopeEgressEnforce additionally confines each worker container's network
+	// traffic to ScopeAllowedTargets with firewall rules loaded at startup (hard
+	// enforcement, unlike the command-text check). Requires iptables in the worker image.
+	ScopeEgressEnforce bool `env:"SCOPE_EGRESS_ENFORCE" envDefault:"false"`
+
 	// === API Server Configuration ===
 	ServerPort   int    `env:"SERVER_PORT" envDefault:"8080"`
 	ServerHost   string `env:"SERVER_HOST" envDefault:"0.0.0.0"`

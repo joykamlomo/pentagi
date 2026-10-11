@@ -355,6 +355,7 @@ These settings control how PentAGI interacts with Docker, which is used for term
 | DockerDefaultImageForPentest | `DOCKER_DEFAULT_IMAGE_FOR_PENTEST` | `vxcontrol/kali-linux` | Default Docker image for penetration testing tasks |
 | TerminalToolTimeout          | `TERMINAL_TOOL_TIMEOUT`            | `1200`                 | Default execution timeout in seconds applied when an agent requests `timeout=0` or a negative value. Accepted range: `1`–`10800` (3 hours). Values `<= 0` or above `10800` are clamped to the 3-hour maximum. Negative values are treated identically to `0`. |
 | ScopeAllowedTargets          | `SCOPE_ALLOWED_TARGETS`            | *(empty)*              | Comma-separated engagement scope (IPs, CIDRs, hostnames, `*.example.com`). Agent terminal commands referencing any other destination are refused. Empty disables the guardrail. |
+| ScopeEgressEnforce           | `SCOPE_EGRESS_ENFORCE`             | `false`                | Load firewall rules into each worker container so it can reach only `SCOPE_ALLOWED_TARGETS` (plus DNS and loopback). Hard enforcement; see below. |
 
 ### Worker Docker Access (`DOCKER_INSIDE_*`)
 
@@ -437,6 +438,15 @@ The Docker settings are primarily used in `pkg/docker/client.go` which implement
   - An invalid entry fails startup, so a typo cannot silently widen the scope.
 
   **Limits — this is a guardrail, not a security boundary.** It reads command text only. It cannot see destinations built at runtime (`curl $(cat hosts.txt)`, encoded strings, scripts the agent writes and then runs), and it does not resolve DNS. For hard enforcement, restrict egress at the network layer for the worker container.
+
+- **ScopeEgressEnforce**: Turns the scope list into a network-level restriction. When a worker container starts, iptables rules are loaded into its network namespace before any agent can use it: the default policy is DROP (with a fast REJECT), and only loopback, replies to inbound connections, the container's DNS resolvers, and the addresses in `SCOPE_ALLOWED_TARGETS` are allowed. Unlike the command-text check, this holds no matter how a command is written.
+
+  - **Fails closed.** If the rules cannot be loaded or the default-deny policy cannot be confirmed afterwards, the container is discarded and the flow does not start.
+  - **Applied from outside.** Rules are loaded with a privileged root `docker exec`; worker containers drop all capabilities, so agent processes cannot modify them.
+  - **Startup refuses unsafe combinations:** no `SCOPE_ALLOWED_TARGETS`; `DOCKER_NETWORK=host` (the rules would hit the host's own network stack); `DOCKER_NET_ADMIN=true` or `DOCKER_INSIDE`/`DOCKER_INSIDE_HOST` (agents could remove the rules or bypass them with a new container).
+  - **Hostnames are enforced as the IPs they resolve to at container start**, using the container's own DNS. If a client's address changes mid-engagement, restart the flow.
+  - **Not supported in this mode:** `*.example.com` wildcards (they cannot be expressed as IP rules; a warning is logged) and package mirrors such as GitHub or PyPI. Use a worker image with the tools pre-installed, and list hosts or IP ranges explicitly.
+  - **Requirements:** `iptables-restore` in the worker image (and `ip6tables-restore` if the container has routable IPv6). DNS to the container's resolver remains open, so DNS tunnelling is not prevented.
 
 - **DockerNetwork**: Controls the network isolation mode for containers. Supports two modes:
   
