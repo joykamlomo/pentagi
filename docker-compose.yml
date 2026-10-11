@@ -23,7 +23,7 @@ networks:
 
 services:
   pentagi:
-    image: ${PENTAGI_IMAGE:-secagent/secagent:latest}
+    image: ${PENTAGI_IMAGE:-ghcr.io/joykamlomo/secagent:latest}
     restart: unless-stopped
     container_name: pentagi
     hostname: pentagi
