@@ -215,7 +215,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: vxcontrol/pentagi
+          images: secagent/secagent
           tags: |
             # For main branch - latest tag
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}

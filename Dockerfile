@@ -200,7 +200,7 @@ USER pentagi
 ENTRYPOINT ["/opt/pentagi/bin/entrypoint.sh", "/opt/pentagi/bin/pentagi"]
 
 # Image Metadata
-LABEL org.opencontainers.image.source="https://github.com/vxcontrol/pentagi"
+LABEL org.opencontainers.image.source="https://github.com/joykamlomo/pentagi"
 LABEL org.opencontainers.image.description="Fully autonomous AI Agents system capable of performing complex penetration testing tasks"
 LABEL org.opencontainers.image.authors="PentAGI Development Team"
 LABEL org.opencontainers.image.licenses="MIT License"

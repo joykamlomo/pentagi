@@ -15,8 +15,6 @@ import (
 	"pentagi/pkg/version"
 )
 
-const updateServerURL = "https://update.pentagi.com"
-
 type updateOperationsImpl struct {
 	processor *processor
 }
@@ -28,8 +26,12 @@ func newUpdateOperations(p *processor) updateOperations {
 func (u *updateOperationsImpl) checkUpdates(ctx context.Context, state *operationState) (*checker.CheckUpdatesResponse, error) {
 	u.processor.appendLog(MsgCheckingUpdates, ProductStackInstaller, state)
 
-	request := u.buildUpdateCheckRequest()
 	serverURL := u.getUpdateServerURL()
+	if serverURL == "" {
+		return nil, fmt.Errorf("update server is not configured")
+	}
+
+	request := u.buildUpdateCheckRequest()
 	proxyURL := u.getProxyURL()
 
 	response, err := u.callUpdateServer(ctx, serverURL, proxyURL, request)
@@ -154,7 +156,7 @@ func (u *updateOperationsImpl) getInstallerDownloadURL(ctx context.Context) (str
 		return "", fmt.Errorf("no update available")
 	}
 
-	return "https://update.pentagi.com/installer", nil
+	return u.getUpdateServerURL() + "/installer", nil
 }
 
 func (u *updateOperationsImpl) downloadBinaryToTemp(ctx context.Context, downloadURL string) (string, error) {
@@ -230,7 +232,7 @@ func (u *updateOperationsImpl) getUpdateServerURL() string {
 		return serverVar.Value
 	}
 
-	return "https://update.pentagi.com"
+	return checker.DefaultUpdateServerEndpoint
 }
 
 func (u *updateOperationsImpl) getProxyURL() string {

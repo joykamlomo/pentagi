@@ -40,7 +40,7 @@ const (
 	DefaultLangfuseEndpoint      = "http://langfuse-web:3000"
 	DefaultObservabilityEndpoint = "otelcol:8148"
 	DefaultLangfuseOtelEndpoint  = "http://otelcol:4318"
-	DefaultUpdateServerEndpoint  = "https://update.pentagi.com"
+	DefaultUpdateServerEndpoint  = "" // empty disables update checks; set UPDATE_SERVER_URL to enable
 	UpdatesCheckEndpoint         = "/api/v1/updates/check"
 	MinFreeMemGB                 = 0.5
 	MinFreeMemGBForPentagi       = 0.5
@@ -556,6 +556,9 @@ func (h *defaultCheckHandler) GatherUpdatesInfo(ctx context.Context, c *CheckRes
 
 	proxyURL := getProxyURL(h.appState)
 	updateServerURL := getEnvVar(h.appState, "UPDATE_SERVER_URL", DefaultUpdateServerEndpoint)
+	if updateServerURL == "" {
+		return nil
+	}
 
 	request := CheckUpdatesRequest{
 		InstallerOsType:        runtime.GOOS,
