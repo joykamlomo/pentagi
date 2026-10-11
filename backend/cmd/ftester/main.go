@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"pentagi/pkg/brand"
 	"syscall"
 	"time"
 
@@ -43,7 +44,7 @@ func main() {
 		subtaskID = nil
 	}
 
-	logrus.Infof("Starting PentAGI Function Tester %s", version.GetBinaryVersion())
+	logrus.Infof("Starting "+brand.Name+" Function Tester %s", version.GetBinaryVersion())
 
 	err := godotenv.Load(*envFile)
 	if err != nil {

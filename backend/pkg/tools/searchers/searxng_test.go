@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"pentagi/pkg/brand"
 	"pentagi/pkg/config"
 	"pentagi/pkg/database"
 )
@@ -89,8 +90,8 @@ func TestSearxngHandle(t *testing.T) {
 	if receivedMethod != http.MethodGet {
 		t.Errorf("request method = %q, want GET", receivedMethod)
 	}
-	if receivedUserAgent != "PentAGI/1.0" {
-		t.Errorf("User-Agent = %q, want PentAGI/1.0", receivedUserAgent)
+	if receivedUserAgent != brand.Name+"/1.0" {
+		t.Errorf("User-Agent = %q, want %s/1.0", receivedUserAgent, brand.Name)
 	}
 	if receivedQuery != "test query" {
 		t.Errorf("query param q = %q, want %q", receivedQuery, "test query")

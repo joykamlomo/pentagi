@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"pentagi/pkg/brand"
 	"syscall"
 	"time"
 
@@ -34,7 +35,7 @@ func main() {
 	help := flag.Bool("help", false, "Show help information")
 	flag.Parse()
 
-	logrus.Infof("Starting PentAGI Embedding Tester %s", version.GetBinaryVersion())
+	logrus.Infof("Starting "+brand.Name+" Embedding Tester %s", version.GetBinaryVersion())
 
 	// Extract command from first non-flag argument
 	args := flag.Args()

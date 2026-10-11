@@ -1,6 +1,7 @@
 package models
 
 import (
+	"pentagi/pkg/brand"
 	"strings"
 
 	"pentagi/cmd/installer/wizard/controller"
@@ -81,7 +82,7 @@ func (h *MainMenuHandler) GetOverview() string {
 		Value bool
 	}{
 		{"Docker", checker.DockerApiAccessible},
-		{"PentAGI", checker.PentagiRunning},
+		{brand.Name, checker.PentagiRunning},
 		{"Langfuse", checker.LangfuseRunning},
 		{"Observability", checker.ObservabilityRunning},
 	}

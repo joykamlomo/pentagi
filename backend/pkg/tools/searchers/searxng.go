@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"pentagi/pkg/brand"
 	"strconv"
 	"strings"
 	"time"
@@ -118,7 +119,7 @@ func (s *searxng) search(ctx context.Context, query string, maxResults int) (str
 		return "", Fatal(fmt.Errorf("failed to create request: %w", err))
 	}
 
-	req.Header.Set("User-Agent", "PentAGI/1.0")
+	req.Header.Set("User-Agent", brand.Name+"/1.0")
 
 	resp, err := client.Do(req)
 	if err != nil {

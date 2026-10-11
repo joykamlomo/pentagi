@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"pentagi/pkg/brand"
 	"pentagi/pkg/cast"
 	"pentagi/pkg/config"
 
@@ -1209,7 +1210,7 @@ func TestWrapToolCallIDTemplateError(t *testing.T) {
 			wantContains: []string{
 				"failed to determine tool call ID template",
 				"does not support tool/function calling",
-				"PentAGI requires",
+				brand.Name + " requires",
 				"flows and assistant sessions",
 				"metadata advertises tool/function calling",
 				"does not support tools",

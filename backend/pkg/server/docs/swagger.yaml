@@ -2052,16 +2052,13 @@ definitions:
         type: string
     type: object
 info:
-  contact:
-    email: team@pentagi.com
-    name: PentAGI Development Team
-    url: https://pentagi.com
-  description: Swagger API for Penetration Testing Advanced General Intelligence PentAGI.
+  contact: {}
+  description: Swagger API for the Security Agent autonomous penetration testing platform.
   license:
     name: MIT
     url: https://opensource.org/license/mit
   termsOfService: http://swagger.io/terms/
-  title: PentAGI Swagger API
+  title: Security Agent Swagger API
   version: "1.0"
 paths:
   /agentlogs/:

@@ -60,14 +60,10 @@ var frontendRoutes = []string{
 	"/dashboard",
 }
 
-// @title PentAGI Swagger API
+// @title Security Agent Swagger API
 // @version 1.0
-// @description Swagger API for Penetration Testing Advanced General Intelligence PentAGI.
+// @description Swagger API for the Security Agent autonomous penetration testing platform.
 // @termsOfService http://swagger.io/terms/
-
-// @contact.url https://pentagi.com
-// @contact.name PentAGI Development Team
-// @contact.email team@pentagi.com
 
 // @license.name MIT
 // @license.url https://opensource.org/license/mit
