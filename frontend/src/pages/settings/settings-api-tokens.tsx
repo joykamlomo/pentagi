@@ -39,6 +39,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
+import { BRAND_NAME } from '@/config/brand';
 import {
     ApiTokenCreatedDocument,
     ApiTokenDeletedDocument,
@@ -898,7 +899,7 @@ function SettingsAPITokens() {
                             </EmptyMedia>
                             <EmptyTitle>No API tokens configured</EmptyTitle>
                             <EmptyDescription>
-                                Create your first API token to access PentAGI programmatically
+                                Create your first API token to access {BRAND_NAME} programmatically
                             </EmptyDescription>
                         </EmptyHeader>
                         <EmptyContent>

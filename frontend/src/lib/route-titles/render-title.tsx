@@ -1,4 +1,6 @@
-export const APP_NAME = 'PentAGI';
+import { BRAND_NAME } from '@/config/brand';
+
+export const APP_NAME = BRAND_NAME;
 
 export type RouteParams = Record<string, string | undefined>;
 

@@ -44,6 +44,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/
 import { FileDropZone } from '@/components/ui/file-drop-zone';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
 import { Spinner } from '@/components/ui/spinner';
+import { BRAND_NAME } from '@/config/brand';
 import { ResourcesCopyDialog } from '@/features/resources/resources-copy-dialog';
 import { ResourcesMkdirDialog } from '@/features/resources/resources-mkdir-dialog';
 import { ResourcesMoveDialog } from '@/features/resources/resources-move-dialog';
@@ -410,7 +411,7 @@ function Resources() {
     const noResourcesState = (
         <FileDropZone
             actionLabel="Upload files"
-            description="Upload documents so PentAGI agents can reference them during your flows. You can also drag & drop files anywhere in this panel."
+            description={`Upload documents so ${BRAND_NAME} agents can reference them during your flows. You can also drag & drop files anywhere in this panel.`}
             hint="Up to 300 MB per file · 2 GB per upload"
             isDragging={isDragging}
             isUploading={upload.isUploading}

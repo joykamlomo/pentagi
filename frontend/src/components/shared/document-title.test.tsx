@@ -29,7 +29,7 @@ describe('DocumentTitle', () => {
             },
         ]);
 
-        await waitFor(() => expect(document.title).toBe('PentAGI'));
+        await waitFor(() => expect(document.title).toBe('Security Agent'));
     });
 
     it('renders a static title from handle', async () => {
@@ -46,7 +46,7 @@ describe('DocumentTitle', () => {
             },
         ]);
 
-        await waitFor(() => expect(document.title).toBe('Dashboard — PentAGI'));
+        await waitFor(() => expect(document.title).toBe('Dashboard — Security Agent'));
     });
 
     it('renders a derived title from a handle.title function reading params', async () => {
@@ -74,7 +74,7 @@ describe('DocumentTitle', () => {
             },
         ]);
 
-        await waitFor(() => expect(document.title).toBe('Agent Selector — PentAGI'));
+        await waitFor(() => expect(document.title).toBe('Agent Selector — Security Agent'));
     });
 
     it('renders the deepest matching handle (child wins over parent)', async () => {
@@ -100,7 +100,7 @@ describe('DocumentTitle', () => {
             },
         ]);
 
-        await waitFor(() => expect(document.title).toBe('API tokens — PentAGI'));
+        await waitFor(() => expect(document.title).toBe('API tokens — Security Agent'));
     });
 
     it('renders a title component produced by apolloTitle()', async () => {
@@ -140,7 +140,7 @@ describe('DocumentTitle', () => {
             </ApolloProvider>,
         );
 
-        await waitFor(() => expect(document.title).toBe('Custom #42 thing — PentAGI'));
+        await waitFor(() => expect(document.title).toBe('Custom #42 thing — Security Agent'));
     });
 
     it('treats an unmarked function as a plain resolver, not a component', async () => {
@@ -159,7 +159,7 @@ describe('DocumentTitle', () => {
             },
         ]);
 
-        await waitFor(() => expect(document.title).toBe('Item 7 — PentAGI'));
+        await waitFor(() => expect(document.title).toBe('Item 7 — Security Agent'));
     });
 
     it('falls back to APP_NAME when handle.title returns an empty string', async () => {
@@ -178,6 +178,6 @@ describe('DocumentTitle', () => {
 
         // Route-level convention: pages that don't want a title prefix return ''
         // intentionally, rather than omitting the handle.
-        await waitFor(() => expect(document.title).toBe('PentAGI'));
+        await waitFor(() => expect(document.title).toBe('Security Agent'));
     });
 });

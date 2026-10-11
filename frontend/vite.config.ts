@@ -127,7 +127,7 @@ export default defineConfig(({ mode }) => {
             createHtmlPlugin({
                 inject: {
                     data: {
-                        title: viteEnv.VITE_APP_NAME,
+                        title: viteEnv.VITE_APP_NAME || 'Security Agent',
                     },
                 },
                 template: 'index.html',

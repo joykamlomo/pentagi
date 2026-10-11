@@ -41,6 +41,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { BRAND_NAME } from '@/config/brand';
 import { useResourcesUpload } from '@/features/resources/use-resources-upload';
 import { useAppForm } from '@/hooks/use-app-form';
 import { getProviderDisplayName } from '@/models/provider';
@@ -79,7 +80,7 @@ export function FlowForm({
     isSubmitting,
     onCancel,
     onSubmit,
-    placeholder = 'Describe what you would like PentAGI to test...',
+    placeholder = `Describe what you would like ${BRAND_NAME} to test...`,
     type,
 }: FlowFormProps) {
     const { providers, setSelectedProvider } = useProviders();

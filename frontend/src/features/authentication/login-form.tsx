@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { FormSubmitButton } from '@/components/ui/form-submit-button';
 import { Input } from '@/components/ui/input';
 import { InputPassword } from '@/components/ui/input-password';
+import { BRAND_NAME } from '@/config/brand';
 import { useAppForm } from '@/hooks/use-app-form';
 import { routes } from '@/lib/routes';
 import { useUser } from '@/providers/user-provider';
@@ -174,7 +175,7 @@ function LoginForm({ providers, returnUrl = routes.newFlow }: LoginFormProps) {
                 noValidate
                 onSubmit={form.handleSubmit(handleSubmit)}
             >
-                <h1 className="text-center text-3xl font-bold">PentAGI</h1>
+                <h1 className="text-center text-3xl font-bold">{BRAND_NAME}</h1>
 
                 {providers?.length > 0 && (
                     <>

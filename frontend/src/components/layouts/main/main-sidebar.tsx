@@ -47,6 +47,7 @@ import {
     SidebarRail,
 } from '@/components/ui/sidebar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BRAND_NAME } from '@/config/brand';
 import { useResourcesUpload } from '@/features/resources/use-resources-upload';
 import { useTheme } from '@/hooks/use-theme';
 import { routes } from '@/lib/routes';
@@ -107,7 +108,7 @@ export function MainSidebar() {
                             <Logo className="hover:animate-logo-spin size-6" />
                         </div>
                         <div className="grid flex-1 text-left leading-tight">
-                            <span className="truncate font-semibold">PentAGI</span>
+                            <span className="truncate font-semibold">{BRAND_NAME}</span>
                         </div>
                     </SidebarMenuItem>
                 </SidebarMenu>
