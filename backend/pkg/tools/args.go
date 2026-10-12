@@ -211,6 +211,24 @@ type StoreGuideAction struct {
 	Message  string `json:"message" jsonschema:"required,title=Store guide message" jsonschema_description:"Engagement-log entry — a 1-2 short sentence running commentary summarizing the guide. Written in the engagement language declared by your system prompt."`
 }
 
+// ReportFindingAction records one security finding for the client report.
+// Unlike the vector-store payloads, this text is a client deliverable: it is
+// written in the engagement language, keeps real hosts and identifiers, and is
+// never anonymized.
+type ReportFindingAction struct {
+	Title       string  `json:"title" jsonschema:"required,maxLength=200" jsonschema_description:"Client-facing finding title: the weakness and where, e.g. 'SQL injection in the login form'. Written in the engagement language declared by your system prompt. Keep it stable; the same title on the same asset updates the earlier record."`
+	Asset       string  `json:"asset" jsonschema:"required,maxLength=300" jsonschema_description:"The affected target exactly as tested, e.g. 'https://app.example.com/login' or '10.0.0.5:445/tcp'. Real identifiers, never anonymized."`
+	Severity    String  `json:"severity" jsonschema:"required,type=string,enum=critical,enum=high,enum=medium,enum=low,enum=info" jsonschema_description:"Your assessment of risk. If you also supply cvss_vector, the severity is derived from the computed score and this value is overridden on mismatch."`
+	Status      String  `json:"status" jsonschema:"required,type=string,enum=confirmed,enum=potential" jsonschema_description:"'confirmed' only if you reproduced the issue and can show evidence; 'potential' for an indicated but unverified issue."`
+	Description string  `json:"description" jsonschema:"required" jsonschema_description:"What the weakness is and why it exists, in the engagement language. Plain, factual, understandable to a technical reader."`
+	Impact      string  `json:"impact" jsonschema:"required" jsonschema_description:"What an attacker can achieve by exploiting it, in business terms where possible. In the engagement language."`
+	Evidence    string  `json:"evidence" jsonschema:"required" jsonschema_description:"Reproduction proof: the exact command or request and the relevant output. Required for status 'confirmed'. Keep commands and output verbatim (they are not translated). Mask secrets: keep the first and last 2 characters and replace the rest with asterisks."`
+	Remediation string  `json:"remediation" jsonschema:"required" jsonschema_description:"Concrete, actionable fix steps the client's engineers can follow, in the engagement language."`
+	CVSSVector  string  `json:"cvss_vector,omitempty" jsonschema:"title=CVSS vector" jsonschema_description:"Optional CVSS v3.1 base vector, e.g. 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H'. Provide only the vector; the score is computed for you. Omit if you cannot justify every metric."`
+	References  Strings `json:"references,omitempty" jsonschema:"type=array,maxItems=20" jsonschema_description:"Optional identifiers and links, e.g. CVE-2021-44228, CWE-89, vendor advisories, OWASP pages. Must be a real JSON array of strings."`
+	Message     string  `json:"message" jsonschema:"required,title=Report finding message" jsonschema_description:"Engagement-log entry — a 1-2 short sentence running commentary naming the finding and its severity. Written in the engagement language declared by your system prompt."`
+}
+
 type SearchAnswerAction struct {
 	Questions Strings `json:"questions" jsonschema:"required,type=array,minItems=1,maxItems=5" jsonschema_description:"Technical-channel payload — 1 to 5 detailed, context-rich semantic queries for the team's answer vector store. Must be a real JSON array of strings, e.g. [\"query 1\",\"query 2\"] - NOT a JSON-encoded string containing an array. ALWAYS written in English regardless of the engagement language: the store is indexed in English and shared across all engagements, so non-English queries will fail to retrieve relevant answers. Each query should include the context, what you want to find, what you intend to do with the information, and why you need it. Note: The 'Type' field acts as a strict filter."`
 	Type      String  `json:"type" jsonschema:"required,type=string,enum=guide,enum=vulnerability,enum=code,enum=tool,enum=other" jsonschema_description:"The specific type of information or answer you are seeking. This required field acts as a strict filter to enhance the relevance of search results by narrowing down the scope to the specified type."`

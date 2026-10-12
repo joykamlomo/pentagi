@@ -146,6 +146,94 @@ func (ns NullContainerType) Value() (driver.Value, error) {
 	return string(ns.ContainerType), nil
 }
 
+type FindingSeverity string
+
+const (
+	FindingSeverityCritical FindingSeverity = "critical"
+	FindingSeverityHigh     FindingSeverity = "high"
+	FindingSeverityMedium   FindingSeverity = "medium"
+	FindingSeverityLow      FindingSeverity = "low"
+	FindingSeverityInfo     FindingSeverity = "info"
+)
+
+func (e *FindingSeverity) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = FindingSeverity(s)
+	case string:
+		*e = FindingSeverity(s)
+	default:
+		return fmt.Errorf("unsupported scan type for FindingSeverity: %T", src)
+	}
+	return nil
+}
+
+type NullFindingSeverity struct {
+	FindingSeverity FindingSeverity `json:"finding_severity"`
+	Valid           bool            `json:"valid"` // Valid is true if FindingSeverity is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullFindingSeverity) Scan(value interface{}) error {
+	if value == nil {
+		ns.FindingSeverity, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.FindingSeverity.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullFindingSeverity) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.FindingSeverity), nil
+}
+
+type FindingStatus string
+
+const (
+	FindingStatusPotential     FindingStatus = "potential"
+	FindingStatusConfirmed     FindingStatus = "confirmed"
+	FindingStatusFalsePositive FindingStatus = "false_positive"
+)
+
+func (e *FindingStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = FindingStatus(s)
+	case string:
+		*e = FindingStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for FindingStatus: %T", src)
+	}
+	return nil
+}
+
+type NullFindingStatus struct {
+	FindingStatus FindingStatus `json:"finding_status"`
+	Valid         bool          `json:"valid"` // Valid is true if FindingStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullFindingStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.FindingStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.FindingStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullFindingStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.FindingStatus), nil
+}
+
 type FlowStatus string
 
 const (
@@ -932,6 +1020,27 @@ type Container struct {
 	FlowID    int64           `json:"flow_id"`
 	CreatedAt sql.NullTime    `json:"created_at"`
 	UpdatedAt sql.NullTime    `json:"updated_at"`
+}
+
+type Finding struct {
+	ID          int64           `json:"id"`
+	FlowID      int64           `json:"flow_id"`
+	TaskID      sql.NullInt64   `json:"task_id"`
+	SubtaskID   sql.NullInt64   `json:"subtask_id"`
+	Title       string          `json:"title"`
+	Severity    FindingSeverity `json:"severity"`
+	Status      FindingStatus   `json:"status"`
+	CvssVector  string          `json:"cvss_vector"`
+	CvssScore   float64         `json:"cvss_score"`
+	Asset       string          `json:"asset"`
+	Description string          `json:"description"`
+	Impact      string          `json:"impact"`
+	Evidence    string          `json:"evidence"`
+	Remediation string          `json:"remediation"`
+	Refs        json.RawMessage `json:"refs"`
+	ReviewedAt  sql.NullTime    `json:"reviewed_at"`
+	CreatedAt   sql.NullTime    `json:"created_at"`
+	UpdatedAt   sql.NullTime    `json:"updated_at"`
 }
 
 type Flow struct {

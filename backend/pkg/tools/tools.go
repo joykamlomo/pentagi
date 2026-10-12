@@ -1354,6 +1354,8 @@ func (fte *flowToolsExecutor) GetPentesterExecutor(cfg PentesterExecutorConfig) 
 		fte.scopeOption(),
 	)
 
+	findings := NewFindingsTool(fte.flowID, cfg.TaskID, cfg.SubtaskID, fte.db)
+
 	ce := &customExecutor{
 		userID:    fte.userID,
 		flowID:    fte.flowID,
@@ -1373,16 +1375,18 @@ func (fte *flowToolsExecutor) GetPentesterExecutor(cfg PentesterExecutorConfig) 
 			registryDefinitions[SearchToolName],
 			registryDefinitions[TerminalToolName],
 			registryDefinitions[FileToolName],
+			registryDefinitions[ReportFindingToolName],
 		},
 		handlers: map[string]ExecutorHandler{
-			HackResultToolName:  cfg.HackResult,
-			AdviceToolName:      cfg.Adviser,
-			CoderToolName:       cfg.Coder,
-			MaintenanceToolName: cfg.Installer,
-			MemoristToolName:    cfg.Memorist,
-			SearchToolName:      cfg.Searcher,
-			TerminalToolName:    term.Handle,
-			FileToolName:        term.Handle,
+			HackResultToolName:    cfg.HackResult,
+			AdviceToolName:        cfg.Adviser,
+			CoderToolName:         cfg.Coder,
+			MaintenanceToolName:   cfg.Installer,
+			MemoristToolName:      cfg.Memorist,
+			SearchToolName:        cfg.Searcher,
+			TerminalToolName:      term.Handle,
+			FileToolName:          term.Handle,
+			ReportFindingToolName: findings.Handle,
 		},
 		barriers: map[string]struct{}{
 			HackResultToolName: {},

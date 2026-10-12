@@ -38,6 +38,7 @@ type Querier interface {
 	DeleteFavoriteFlow(ctx context.Context, arg DeleteFavoriteFlowParams) (UserPreference, error)
 	DeleteFlow(ctx context.Context, id int64) (Flow, error)
 	DeleteFlowAssistantLog(ctx context.Context, id int64) error
+	DeleteFlowFinding(ctx context.Context, arg DeleteFlowFindingParams) error
 	// Delete all memory-type documents for a specific flow.
 	// Called on flow deletion to free long-term memory that will never be re-used.
 	// flow_id is the decimal text representation of the flow ID (e.g. "55"), matching the
@@ -89,6 +90,8 @@ type Querier interface {
 	GetFlowAssistantLogs(ctx context.Context, arg GetFlowAssistantLogsParams) ([]Assistantlog, error)
 	GetFlowAssistants(ctx context.Context, flowID int64) ([]Assistant, error)
 	GetFlowContainers(ctx context.Context, flowID int64) ([]Container, error)
+	GetFlowFinding(ctx context.Context, arg GetFlowFindingParams) (Finding, error)
+	GetFlowFindings(ctx context.Context, flowID int64) ([]Finding, error)
 	GetFlowMsgChains(ctx context.Context, flowID int64) ([]Msgchain, error)
 	GetFlowMsgLogs(ctx context.Context, flowID int64) ([]Msglog, error)
 	GetFlowPrimaryContainer(ctx context.Context, flowID int64) (Container, error)
@@ -211,6 +214,8 @@ type Querier interface {
 	GetUserFlowAssistantLogs(ctx context.Context, arg GetUserFlowAssistantLogsParams) ([]Assistantlog, error)
 	GetUserFlowAssistants(ctx context.Context, arg GetUserFlowAssistantsParams) ([]Assistant, error)
 	GetUserFlowContainers(ctx context.Context, arg GetUserFlowContainersParams) ([]Container, error)
+	GetUserFlowFinding(ctx context.Context, arg GetUserFlowFindingParams) (Finding, error)
+	GetUserFlowFindings(ctx context.Context, arg GetUserFlowFindingsParams) ([]Finding, error)
 	GetUserFlowMsgLogs(ctx context.Context, arg GetUserFlowMsgLogsParams) ([]Msglog, error)
 	GetUserFlowScreenshots(ctx context.Context, arg GetUserFlowScreenshotsParams) ([]Screenshot, error)
 	GetUserFlowSearchLogs(ctx context.Context, arg GetUserFlowSearchLogsParams) ([]Searchlog, error)
@@ -287,6 +292,8 @@ type Querier interface {
 	UpdateContainerImage(ctx context.Context, arg UpdateContainerImageParams) (Container, error)
 	UpdateContainerStatus(ctx context.Context, arg UpdateContainerStatusParams) (Container, error)
 	UpdateContainerStatusLocalID(ctx context.Context, arg UpdateContainerStatusLocalIDParams) (Container, error)
+	// A reviewer's edit. Marks the finding as reviewed so agents stop overwriting it.
+	UpdateFinding(ctx context.Context, arg UpdateFindingParams) (Finding, error)
 	UpdateFlow(ctx context.Context, arg UpdateFlowParams) (Flow, error)
 	UpdateFlowLanguage(ctx context.Context, arg UpdateFlowLanguageParams) (Flow, error)
 	UpdateFlowProvider(ctx context.Context, arg UpdateFlowProviderParams) (Flow, error)
@@ -336,6 +343,11 @@ type Querier interface {
 	UpdateUserProvider(ctx context.Context, arg UpdateUserProviderParams) (Provider, error)
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error)
 	UpdateUserStatus(ctx context.Context, arg UpdateUserStatusParams) (User, error)
+	// Agents record a finding with this query. Re-reporting the same issue on the same
+	// asset updates the existing row, except once a person has reviewed it: then the
+	// row is left untouched (no row is returned) so human edits are never overwritten.
+	// A confirmed finding is never downgraded back to potential by a later report.
+	UpsertFinding(ctx context.Context, arg UpsertFindingParams) (Finding, error)
 	UpsertUserPreferences(ctx context.Context, arg UpsertUserPreferencesParams) (UserPreference, error)
 }
 

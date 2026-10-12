@@ -42,6 +42,7 @@ const (
 	StoreCodeToolName          = "store_code"
 	GraphitiSearchToolName     = "graphiti_search"
 	ReportResultToolName       = "report_result"
+	ReportFindingToolName      = "report_finding"
 	SubtaskListToolName        = "subtask_list"
 	SubtaskPatchToolName       = "subtask_patch"
 	TerminalToolName           = "terminal"
@@ -129,6 +130,7 @@ var toolsTypeMapping = map[string]ToolType{
 	StoreCodeToolName:          StoreVectorDbToolType,
 	GraphitiSearchToolName:     SearchVectorDbToolType,
 	ReportResultToolName:       StoreAgentResultToolType,
+	ReportFindingToolName:      EnvironmentToolType,
 	SubtaskListToolName:        StoreAgentResultToolType,
 	SubtaskPatchToolName:       StoreAgentResultToolType,
 	TerminalToolName:           EnvironmentToolType,
@@ -341,6 +343,15 @@ var registryDefinitions = map[string]llms.FunctionDefinition{
 		Description: "Store the code sample to the vector database for future use. It's should be a sample like a one source code file for some question. " +
 			"Anonymize all sensitive data (IPs, domains, credentials, API keys) using descriptive placeholders",
 		Parameters: reflector.Reflect(&StoreCodeAction{}),
+	},
+	ReportFindingToolName: {
+		Name: ReportFindingToolName,
+		Description: "Record a security finding for the client report. Call it once per distinct vulnerability or weakness, as soon as you have evidence, " +
+			"with the REAL asset (host, URL, service) it affects. Findings are read by the client, so be precise: describe what is wrong, what an attacker gains, " +
+			"the exact steps/output that prove it, and how to fix it. Use status 'confirmed' only when you reproduced it and can show evidence; otherwise use 'potential'. " +
+			"Provide a CVSS v3.1 base vector and the score and severity are computed for you. Mask secrets in evidence (keep the first and last 2 characters). " +
+			"Reporting the same title on the same asset again updates the earlier record.",
+		Parameters: reflector.Reflect(&ReportFindingAction{}),
 	},
 	GraphitiSearchToolName: {
 		Name: GraphitiSearchToolName,

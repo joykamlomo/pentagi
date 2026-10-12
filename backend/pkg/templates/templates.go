@@ -124,6 +124,7 @@ var PromptVariables = map[PromptType][]string{
 	},
 	PromptTypePentester: {
 		"HackResultToolName",
+		"ReportFindingToolName",
 		"WebSearchToolName",
 		"SearchGuideToolName",
 		"StoreGuideToolName",
