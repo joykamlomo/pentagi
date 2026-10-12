@@ -189,6 +189,7 @@ func NewRouter(
 	assistantlogService := services.NewAssistantlogService(orm)
 	msglogService := services.NewMsglogService(orm)
 	searchlogService := services.NewSearchlogService(orm)
+	findingService := services.NewFindingService(orm, cfg.ReportCompanyName, cfg.ScopeEntries())
 	vecstorelogService := services.NewVecstorelogService(orm)
 	termlogService := services.NewTermlogService(orm)
 	screenshotService := services.NewScreenshotService(orm, cfg.DataDir)
@@ -301,6 +302,7 @@ func NewRouter(
 		setMsglogsGroup(privateGroup, msglogService)
 		setTermlogsGroup(privateGroup, termlogService)
 		setSearchlogsGroup(privateGroup, searchlogService)
+		setFindingsGroup(privateGroup, findingService)
 		setVecstorelogsGroup(privateGroup, vecstorelogService)
 		setScreenshotsGroup(privateGroup, screenshotService)
 		setPromptsGroup(privateGroup, promptService)
@@ -473,6 +475,16 @@ func setFlowsGroup(parent *gin.RouterGroup, svc *services.FlowService) {
 		flowsViewGroup.GET("/:flowID", svc.GetFlow)
 		flowsViewGroup.GET("/:flowID/graph", svc.GetFlowGraph)
 	}
+}
+
+func setFindingsGroup(parent *gin.RouterGroup, svc *services.FindingService) {
+	findingsGroup := parent.Group("/flows/:flowID/findings")
+	{
+		findingsGroup.GET("/", svc.GetFlowFindings)
+		findingsGroup.PUT("/:findingID", svc.UpdateFlowFinding)
+	}
+
+	parent.GET("/flows/:flowID/report", svc.GetFlowReport)
 }
 
 func setFlowFilesGroup(parent *gin.RouterGroup, svc *services.FlowFileService) {

@@ -15,11 +15,7 @@ func (c *Config) ScopePolicy() (*scope.Policy, error) {
 		return nil, nil
 	}
 
-	entries := strings.FieldsFunc(c.ScopeAllowedTargets, func(r rune) bool {
-		return r == ',' || r == ';' || r == ' ' || r == '\n' || r == '\t'
-	})
-
-	policy, err := scope.Parse(entries)
+	policy, err := scope.Parse(c.ScopeEntries())
 	if err != nil {
 		return nil, fmt.Errorf("invalid SCOPE_ALLOWED_TARGETS: %w", err)
 	}
@@ -55,4 +51,14 @@ func (c *Config) ValidateScope() error {
 	}
 
 	return nil
+}
+
+// ScopeEntries returns the individual SCOPE_ALLOWED_TARGETS entries as written.
+func (c *Config) ScopeEntries() []string {
+	if c == nil {
+		return nil
+	}
+	return strings.FieldsFunc(c.ScopeAllowedTargets, func(r rune) bool {
+		return r == ',' || r == ';' || r == ' ' || r == '\n' || r == '\t'
+	})
 }

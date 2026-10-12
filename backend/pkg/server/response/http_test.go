@@ -137,6 +137,11 @@ func TestPredefinedErrors(t *testing.T) {
 		{"ErrSearchlogsInvalidRequest", ErrSearchlogsInvalidRequest, 400, "Searchlogs.InvalidRequest"},
 		{"ErrSearchlogsInvalidData", ErrSearchlogsInvalidData, 500, "Searchlogs.InvalidData"},
 
+		// Findings errors
+		{"ErrFindingsInvalidRequest", ErrFindingsInvalidRequest, 400, "Findings.InvalidRequest"},
+		{"ErrFindingsNotFound", ErrFindingsNotFound, 404, "Findings.NotFound"},
+		{"ErrFindingsConflict", ErrFindingsConflict, 409, "Findings.Conflict"},
+
 		// Termlogs errors
 		{"ErrTermlogsInvalidRequest", ErrTermlogsInvalidRequest, 400, "Termlogs.InvalidRequest"},
 		{"ErrTermlogsInvalidData", ErrTermlogsInvalidData, 500, "Termlogs.InvalidData"},

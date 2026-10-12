@@ -97,6 +97,12 @@ var ErrMsglogsInvalidData = NewHttpError(500, "Msglogs.InvalidData", "invalid ms
 var ErrSearchlogsInvalidRequest = NewHttpError(400, "Searchlogs.InvalidRequest", "invalid searchlog request data")
 var ErrSearchlogsInvalidData = NewHttpError(500, "Searchlogs.InvalidData", "invalid searchlog data")
 
+// findings
+
+var ErrFindingsInvalidRequest = NewHttpError(400, "Findings.InvalidRequest", "invalid finding request data")
+var ErrFindingsNotFound = NewHttpError(404, "Findings.NotFound", "finding not found")
+var ErrFindingsConflict = NewHttpError(409, "Findings.Conflict", "a finding with this title and asset already exists in the flow")
+
 // termlogs
 
 var ErrTermlogsInvalidRequest = NewHttpError(400, "Termlogs.InvalidRequest", "invalid termlog request data")

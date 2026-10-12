@@ -619,6 +619,57 @@ definitions:
     - current_password
     - mail
     type: object
+  models.Finding:
+    properties:
+      asset:
+        type: string
+      created_at:
+        type: string
+      cvss_score:
+        type: number
+      cvss_vector:
+        type: string
+      description:
+        type: string
+      evidence:
+        type: string
+      flow_id:
+        minimum: 0
+        type: integer
+      id:
+        minimum: 0
+        type: integer
+      impact:
+        type: string
+      references:
+        items:
+          type: string
+        type: array
+      remediation:
+        type: string
+      reviewed_at:
+        type: string
+      severity:
+        type: string
+      status:
+        type: string
+      subtask_id:
+        minimum: 0
+        type: integer
+      task_id:
+        minimum: 0
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - asset
+    - flow_id
+    - severity
+    - status
+    - title
+    type: object
   models.Flow:
     properties:
       created_at:
@@ -1861,6 +1912,15 @@ definitions:
       total:
         type: integer
     type: object
+  services.findingsList:
+    properties:
+      findings:
+        items:
+          $ref: '#/definitions/models.Finding'
+        type: array
+      total:
+        type: integer
+    type: object
   services.flows:
     properties:
       flows:
@@ -1984,6 +2044,31 @@ definitions:
         type: array
       total:
         type: integer
+    type: object
+  services.updateFindingRequest:
+    properties:
+      asset:
+        type: string
+      cvss_vector:
+        type: string
+      description:
+        type: string
+      evidence:
+        type: string
+      impact:
+        type: string
+      references:
+        items:
+          type: string
+        type: array
+      remediation:
+        type: string
+      severity:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
     type: object
   services.users:
     properties:
@@ -3769,6 +3854,111 @@ paths:
       summary: Promote flow file(s) or directory/directories to user resources
       tags:
       - FlowFiles
+  /flows/{flowID}/findings/:
+    get:
+      parameters:
+      - description: flow id
+        in: path
+        minimum: 0
+        name: flowID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: findings list received successful
+          schema:
+            allOf:
+            - $ref: '#/definitions/SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/services.findingsList'
+              type: object
+        "400":
+          description: invalid query request data
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "403":
+          description: getting findings not permitted
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: flow not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: internal error on getting findings
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Retrieve findings list by flow id
+      tags:
+      - Findings
+  /flows/{flowID}/findings/{findingID}:
+    put:
+      consumes:
+      - application/json
+      description: Applies a reviewer's edits and marks the finding as reviewed, after
+        which agents no longer overwrite it. Set status to false_positive to exclude
+        it from the report.
+      parameters:
+      - description: flow id
+        in: path
+        minimum: 0
+        name: flowID
+        required: true
+        type: integer
+      - description: finding id
+        in: path
+        minimum: 0
+        name: findingID
+        required: true
+        type: integer
+      - description: fields to change
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/services.updateFindingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: finding updated successful
+          schema:
+            allOf:
+            - $ref: '#/definitions/SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Finding'
+              type: object
+        "400":
+          description: invalid finding data
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "403":
+          description: updating finding not permitted
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: finding not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "409":
+          description: another finding already has this title and asset
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: internal error on updating finding
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Review or edit a finding
+      tags:
+      - Findings
   /flows/{flowID}/graph:
     get:
       parameters:
@@ -3897,6 +4087,63 @@ paths:
       summary: Retrieve msglogs list by flow id
       tags:
       - Msglogs
+  /flows/{flowID}/report:
+    get:
+      description: Renders recorded findings as a client report. The report is marked
+        DRAFT until every included finding has been reviewed.
+      parameters:
+      - description: flow id
+        in: path
+        minimum: 0
+        name: flowID
+        required: true
+        type: integer
+      - description: html (default), md or json
+        enum:
+        - html
+        - md
+        - json
+        in: query
+        name: format
+        type: string
+      - description: client name to print on the report
+        in: query
+        name: client
+        type: string
+      - description: send as an attachment instead of displaying inline
+        in: query
+        name: download
+        type: boolean
+      produces:
+      - text/html
+      - text/plain
+      - application/json
+      responses:
+        "200":
+          description: report
+          schema:
+            type: string
+        "400":
+          description: invalid request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "403":
+          description: getting report not permitted
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: flow not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: internal error on building report
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Download the pentest report for a flow
+      tags:
+      - Findings
   /flows/{flowID}/screenshots/:
     get:
       parameters:

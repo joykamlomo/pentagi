@@ -60,6 +60,10 @@ type Config struct {
 	// Empty disables the scope guardrail. See pkg/scope for what it can and cannot enforce.
 	ScopeAllowedTargets string `env:"SCOPE_ALLOWED_TARGETS"`
 
+	// ReportCompanyName is shown as the issuer on generated pentest reports.
+	// Empty falls back to the product name.
+	ReportCompanyName string `env:"REPORT_COMPANY_NAME"`
+
 	// ScopeEgressEnforce additionally confines each worker container's network
 	// traffic to ScopeAllowedTargets with firewall rules loaded at startup (hard
 	// enforcement, unlike the command-text check). Requires iptables in the worker image.

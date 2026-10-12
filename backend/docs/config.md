@@ -355,6 +355,7 @@ These settings control how PentAGI interacts with Docker, which is used for term
 | DockerDefaultImageForPentest | `DOCKER_DEFAULT_IMAGE_FOR_PENTEST` | `vxcontrol/kali-linux` | Default Docker image for penetration testing tasks |
 | TerminalToolTimeout          | `TERMINAL_TOOL_TIMEOUT`            | `1200`                 | Default execution timeout in seconds applied when an agent requests `timeout=0` or a negative value. Accepted range: `1`–`10800` (3 hours). Values `<= 0` or above `10800` are clamped to the 3-hour maximum. Negative values are treated identically to `0`. |
 | ScopeAllowedTargets          | `SCOPE_ALLOWED_TARGETS`            | *(empty)*              | Comma-separated engagement scope (IPs, CIDRs, hostnames, `*.example.com`). Agent terminal commands referencing any other destination are refused. Empty disables the guardrail. |
+| ReportCompanyName            | `REPORT_COMPANY_NAME`              | *(product name)*       | Issuer name printed on generated pentest reports. |
 | ScopeEgressEnforce           | `SCOPE_EGRESS_ENFORCE`             | `false`                | Load firewall rules into each worker container so it can reach only `SCOPE_ALLOWED_TARGETS` (plus DNS and loopback). Hard enforcement; see below. |
 
 ### Worker Docker Access (`DOCKER_INSIDE_*`)
